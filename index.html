@@ -123,6 +123,7 @@
       width: 58px;
       height: 58px;
       border-radius: 18px;
+      object-fit: cover;
     }
 
     .brand h1 {
@@ -188,30 +189,6 @@
       font-size: 12px;
       line-height: 1.5;
     }
-
-    #settingsButton {
-      position: fixed;
-      right: 12px;
-      top: calc(12px + env(safe-area-inset-top));
-      z-index: 20;
-      display: none;
-      width: 38px;
-      height: 38px;
-      min-height: 38px;
-      margin: 0;
-      padding: 0;
-      border: 1px solid rgba(255, 255, 255, 0.13);
-      border-radius: 999px;
-      background: rgba(20, 19, 24, 0.76);
-      color: #ffffff;
-      font-size: 17px;
-      backdrop-filter: blur(10px);
-      opacity: 0.72;
-    }
-
-    #settingsButton:active {
-      opacity: 1;
-    }
   </style>
 </head>
 
@@ -269,15 +246,6 @@
     allow="clipboard-read; clipboard-write; fullscreen"
   ></iframe>
 
-  <button
-    id="settingsButton"
-    type="button"
-    aria-label="Ganti URL Apps Script"
-    title="Ganti URL Apps Script"
-  >
-    ⚙
-  </button>
-
   <script>
     const STORAGE_KEY = "santara-closing-apps-script-url";
 
@@ -287,12 +255,9 @@
       document.getElementById("appsScriptUrl");
     const saveButton = document.getElementById("saveButton");
     const appFrame = document.getElementById("appFrame");
-    const settingsButton =
-      document.getElementById("settingsButton");
 
     document.addEventListener("DOMContentLoaded", initializeApp);
     saveButton.addEventListener("click", saveAndOpen);
-    settingsButton.addEventListener("click", resetUrl);
 
     appsScriptUrlInput.addEventListener("keydown", function (event) {
       if (event.key === "Enter") {
@@ -334,9 +299,14 @@
 
       if (!isValidAppsScriptUrl(url)) {
         alert(
-          "URL belum benar.\n\n" +
-          "Gunakan URL Google Apps Script yang dimulai dengan:\n" +
-          "https://script.google.com/macros/s/\n\n" +
+          "URL belum benar.
+
+" +
+          "Gunakan URL Google Apps Script yang dimulai dengan:
+" +
+          "https://script.google.com/macros/s/
+
+" +
           "dan berakhiran /exec"
         );
 
@@ -352,12 +322,10 @@
       setupScreen.style.display = "none";
       loadingScreen.style.display = "flex";
       appFrame.style.visibility = "hidden";
-      settingsButton.style.display = "none";
 
       appFrame.onload = function () {
         loadingScreen.style.display = "none";
         appFrame.style.visibility = "visible";
-        settingsButton.style.display = "block";
       };
 
       appFrame.src = url;
@@ -367,27 +335,11 @@
       appFrame.src = "about:blank";
       appFrame.style.visibility = "hidden";
       loadingScreen.style.display = "none";
-      settingsButton.style.display = "none";
       setupScreen.style.display = "flex";
 
       setTimeout(function () {
         appsScriptUrlInput.focus();
       }, 150);
-    }
-
-    function resetUrl() {
-      const confirmed = confirm(
-        "Apakah Anda ingin mengganti URL Google Apps Script?"
-      );
-
-      if (!confirmed) {
-        return;
-      }
-
-      const oldUrl = localStorage.getItem(STORAGE_KEY) || "";
-      localStorage.removeItem(STORAGE_KEY);
-      appsScriptUrlInput.value = oldUrl;
-      showSetup();
     }
 
     function registerServiceWorker() {
