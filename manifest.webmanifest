@@ -1,15 +1,15 @@
 {
   "id": "./",
-  "name": "Santara Closing",
+  "name": "Santara",
   "short_name": "Santara",
-  "description": "Aplikasi closing operasional Santara",
+  "description": "Aplikasi operasional dan closing Santara",
   "lang": "id-ID",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
   "orientation": "portrait",
-  "background_color": "#141318",
-  "theme_color": "#141318",
+  "background_color": "#080b18",
+  "theme_color": "#0b1230",
   "icons": [
     {
       "src": "./icon-192.png",

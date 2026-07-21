@@ -1,4 +1,4 @@
-const CACHE_NAME = "santara-closing-shell-v1";
+const CACHE_NAME = "santara-premium-shell-v4";
 
 const APP_SHELL_FILES = [
   "./",
@@ -6,7 +6,8 @@ const APP_SHELL_FILES = [
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",
-  "./icon-maskable-512.png"
+  "./icon-maskable-512.png",
+  "./icon-1024.png"
 ];
 
 self.addEventListener("install", function (event) {
@@ -15,56 +16,36 @@ self.addEventListener("install", function (event) {
       return cache.addAll(APP_SHELL_FILES);
     })
   );
-
   self.skipWaiting();
 });
 
 self.addEventListener("activate", function (event) {
   event.waitUntil(
-    caches.keys().then(function (cacheNames) {
+    caches.keys().then(function (names) {
       return Promise.all(
-        cacheNames
-          .filter(function (name) {
-            return name !== CACHE_NAME;
-          })
-          .map(function (name) {
-            return caches.delete(name);
-          })
+        names
+          .filter(function (name) { return name !== CACHE_NAME; })
+          .map(function (name) { return caches.delete(name); })
       );
     })
   );
-
   self.clients.claim();
 });
 
 self.addEventListener("fetch", function (event) {
-  if (event.request.method !== "GET") {
-    return;
-  }
+  if (event.request.method !== "GET") return;
 
   const requestUrl = new URL(event.request.url);
-
-  /*
-   * Service worker hanya menangani file PWA wrapper
-   * yang berada pada domain yang sama.
-   *
-   * Halaman Apps Script berada di domain Google,
-   * sehingga tidak dicache agar data stok selalu online.
-   */
-  if (requestUrl.origin !== self.location.origin) {
-    return;
-  }
+  if (requestUrl.origin !== self.location.origin) return;
 
   event.respondWith(
     fetch(event.request)
-      .then(function (networkResponse) {
-        const responseCopy = networkResponse.clone();
-
+      .then(function (response) {
+        const copy = response.clone();
         caches.open(CACHE_NAME).then(function (cache) {
-          cache.put(event.request, responseCopy);
+          cache.put(event.request, copy);
         });
-
-        return networkResponse;
+        return response;
       })
       .catch(function () {
         return caches.match(event.request);

@@ -3,210 +3,463 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>Santara Closing</title>
-  <meta name="theme-color" content="#141318">
-  <meta name="background-color" content="#141318">
-  <meta name="application-name" content="Santara Closing">
+
+  <title>Santara</title>
+
+  <meta name="theme-color" content="#0b1230">
+  <meta name="background-color" content="#080b18">
+  <meta name="application-name" content="Santara">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
   <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png">
+
   <style>
     :root {
       color-scheme: dark;
-      background: #141318;
+      --night: #080b18;
+      --night-soft: #0d1230;
+      --blue: #1342da;
+      --violet: #8b5cf6;
+      --orange: #f24e25;
+      --text: #f8fafc;
+      --muted: #9ca3af;
     }
+
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
-    html, body {
+
+    html,
+    body {
       width: 100%;
       height: 100%;
       min-height: 100dvh;
       margin: 0;
       padding: 0;
       overflow: hidden;
-      background: #141318;
-      color: #ffffff;
+      background: var(--night);
+      color: var(--text);
       font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
+
+    body {
+      overscroll-behavior: none;
+    }
+
     #appFrame {
       position: fixed;
       inset: 0;
+      z-index: 1;
       width: 100%;
       height: 100%;
       border: 0;
       margin: 0;
       padding: 0;
       background: #141318;
+      opacity: 0;
       visibility: hidden;
+      transition: opacity 320ms ease;
     }
-    #loadingScreen {
-      position: fixed;
-      inset: 0;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 18px;
-      padding: calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
-      background: radial-gradient(circle at top, rgba(139, 92, 246, 0.18), transparent 34%), #141318;
-      text-align: center;
+
+    #appFrame.ready {
+      opacity: 1;
+      visibility: visible;
     }
-    .brand-logo {
-      width: 92px;
-      height: 92px;
-      border-radius: 28px;
-      object-fit: cover;
-      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
-    }
-    .brand-title {
-      font-size: 28px;
-      font-weight: 800;
-      margin: 0;
-      letter-spacing: 0.02em;
-    }
-    .brand-subtitle {
-      margin: 0;
-      color: #a1a1aa;
-      font-size: 14px;
-    }
-    .spinner {
-      width: 42px;
-      height: 42px;
-      border: 4px solid rgba(139, 92, 246, 0.25);
-      border-top-color: #8b5cf6;
-      border-radius: 999px;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    #errorScreen {
+
+    #splash {
       position: fixed;
       inset: 0;
       z-index: 20;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background: #141318;
+      display: grid;
+      place-items: center;
+      padding:
+        calc(28px + env(safe-area-inset-top))
+        28px
+        calc(28px + env(safe-area-inset-bottom));
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(38, 88, 255, 0.34), transparent 34%),
+        radial-gradient(circle at 85% 88%, rgba(242, 78, 37, 0.22), transparent 36%),
+        linear-gradient(160deg, #0a0d20 0%, #080b18 46%, #0b1230 100%);
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 420ms ease, visibility 420ms ease;
     }
-    .error-card {
-      width: min(100%, 420px);
-      padding: 28px;
-      border-radius: 24px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.045);
-      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+
+    #splash.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .ambient {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(12px);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .ambient.one {
+      width: 280px;
+      height: 280px;
+      left: -140px;
+      top: 8%;
+      background: rgba(19, 66, 218, 0.38);
+      animation: drift-one 6s ease-in-out infinite alternate;
+    }
+
+    .ambient.two {
+      width: 240px;
+      height: 240px;
+      right: -120px;
+      bottom: 6%;
+      background: rgba(242, 78, 37, 0.24);
+      animation: drift-two 7s ease-in-out infinite alternate;
+    }
+
+    @keyframes drift-one {
+      to { transform: translate(36px, 28px) scale(1.08); }
+    }
+
+    @keyframes drift-two {
+      to { transform: translate(-30px, -24px) scale(1.1); }
+    }
+
+    .splash-content {
+      position: relative;
+      z-index: 2;
+      width: min(100%, 360px);
       text-align: center;
     }
-    .error-card h2 {
-      margin: 0 0 10px;
-      font-size: 22px;
+
+    .logo-stage {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin: 0 auto 28px;
+      display: grid;
+      place-items: center;
     }
-    .error-card p {
-      margin: 0;
-      color: #cbd5e1;
-      line-height: 1.6;
-      font-size: 14px;
+
+    .orbit {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.10);
     }
-    .retry-button {
+
+    .orbit::before {
+      content: "";
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8b5cf6, #f24e25);
+      box-shadow: 0 0 18px rgba(139, 92, 246, 0.9);
+      transform: translateX(-50%);
+    }
+
+    .orbit.outer {
+      animation: rotate 5.5s linear infinite;
+    }
+
+    .orbit.inner {
+      inset: 13px;
+      border-color: rgba(255, 255, 255, 0.07);
+      animation: rotate-reverse 7s linear infinite;
+    }
+
+    @keyframes rotate {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes rotate-reverse {
+      to { transform: rotate(-360deg); }
+    }
+
+    .logo-card {
+      position: relative;
+      width: 108px;
+      height: 108px;
+      overflow: hidden;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow:
+        0 22px 60px rgba(0, 0, 0, 0.42),
+        0 0 42px rgba(35, 84, 240, 0.25);
+      animation: breathe 2.6s ease-in-out infinite;
+    }
+
+    .logo-card::after {
+      content: "";
+      position: absolute;
+      inset: -70%;
+      background: linear-gradient(
+        115deg,
+        transparent 43%,
+        rgba(255, 255, 255, 0.20) 50%,
+        transparent 57%
+      );
+      animation: shine 2.8s ease-in-out infinite;
+    }
+
+    .logo-card img {
       width: 100%;
-      min-height: 52px;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.035); }
+    }
+
+    @keyframes shine {
+      0%, 38% { transform: translateX(-32%) rotate(8deg); opacity: 0; }
+      52% { opacity: 1; }
+      72%, 100% { transform: translateX(32%) rotate(8deg); opacity: 0; }
+    }
+
+    .app-name {
+      margin: 0;
+      font-size: clamp(32px, 9vw, 42px);
+      line-height: 1;
+      font-weight: 850;
+      letter-spacing: 0.03em;
+    }
+
+    .tagline {
+      margin: 10px 0 0;
+      color: #b7becb;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+    }
+
+    .loading-box {
+      margin-top: 44px;
+    }
+
+    .loading-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 10px;
+      color: #cbd5e1;
+      font-size: 12px;
+    }
+
+    #loadingText {
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #loadingPercent {
+      min-width: 34px;
+      text-align: right;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      position: relative;
+      width: 100%;
+      height: 7px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
+    }
+
+    #progressBar {
+      width: 8%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #2463ff, #8b5cf6 56%, #f24e25);
+      box-shadow: 0 0 18px rgba(139, 92, 246, 0.44);
+      transition: width 420ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    .secure-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
       margin-top: 18px;
-      border: 0;
+      color: #7f899a;
+      font-size: 11px;
+    }
+
+    .secure-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.65);
+    }
+
+    #offlineNotice {
+      position: fixed;
+      left: 50%;
+      bottom: calc(20px + env(safe-area-inset-bottom));
+      z-index: 30;
+      display: none;
+      width: min(calc(100% - 32px), 420px);
+      padding: 12px 15px;
+      border: 1px solid rgba(248, 113, 113, 0.25);
       border-radius: 14px;
-      background: linear-gradient(90deg, #2563eb, #8b5cf6, #e11d48);
-      color: white;
-      font-size: 15px;
-      font-weight: 800;
-      cursor: pointer;
+      background: rgba(69, 10, 10, 0.94);
+      color: #fecaca;
+      text-align: center;
+      font-size: 13px;
+      transform: translateX(-50%);
+      backdrop-filter: blur(12px);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
+
 <body>
-  <section id="loadingScreen">
-    <img class="brand-logo" src="./icon-192.png" alt="Logo Santara">
-    <div>
-      <h1 class="brand-title">Santara Closing</h1>
-      <p class="brand-subtitle">Memuat aplikasi...</p>
+  <section id="splash" aria-label="Memuat Santara">
+    <div class="ambient one"></div>
+    <div class="ambient two"></div>
+
+    <div class="splash-content">
+      <div class="logo-stage" aria-hidden="true">
+        <div class="orbit outer"></div>
+        <div class="orbit inner"></div>
+        <div class="logo-card">
+          <img src="./icon-192.png" alt="">
+        </div>
+      </div>
+
+      <h1 class="app-name">Santara</h1>
+      <p class="tagline">Closing Operations</p>
+
+      <div class="loading-box">
+        <div class="loading-row">
+          <span id="loadingText">Menyiapkan aplikasi...</span>
+          <span id="loadingPercent">8%</span>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div id="progressBar"></div>
+        </div>
+        <div class="secure-note">
+          <span class="secure-dot"></span>
+          <span>Koneksi aman ke database Santara</span>
+        </div>
+      </div>
     </div>
-    <div class="spinner"></div>
   </section>
 
-  <section id="errorScreen">
-    <div class="error-card">
-      <h2>Gagal Membuka Aplikasi</h2>
-      <p>
-        Santara Closing tidak dapat dimuat saat ini.<br>
-        Pastikan koneksi internet aktif, lalu coba lagi.
-      </p>
-      <button class="retry-button" type="button" onclick="reloadApp()">Coba Lagi</button>
-    </div>
-  </section>
+  <div id="offlineNotice">
+    Tidak ada koneksi internet. Sambungkan perangkat lalu buka ulang aplikasi.
+  </div>
 
-  <iframe id="appFrame" title="Santara Closing App" allow="clipboard-read; clipboard-write; fullscreen"></iframe>
+  <iframe
+    id="appFrame"
+    title="Santara"
+    allow="clipboard-read; clipboard-write; fullscreen"
+  ></iframe>
 
   <script>
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzJcpAE7I8YT5Z3-afH7es-ecfEYaMY1AQ1UycKBC9Y8fPOCnpWdlAcIv_zb8lVMqtuQA/exec';
-    const appFrame = document.getElementById('appFrame');
-    const loadingScreen = document.getElementById('loadingScreen');
-    const errorScreen = document.getElementById('errorScreen');
-    let errorTimer = null;
+    const MIN_SPLASH_TIME = 1900;
 
-    document.addEventListener('DOMContentLoaded', initializeApp);
+    const splash = document.getElementById("splash");
+    const appFrame = document.getElementById("appFrame");
+    const progressBar = document.getElementById("progressBar");
+    const loadingText = document.getElementById("loadingText");
+    const loadingPercent = document.getElementById("loadingPercent");
+    const offlineNotice = document.getElementById("offlineNotice");
+
+    const loadingSteps = [
+      { delay: 120, progress: 18, text: "Menyiapkan aplikasi..." },
+      { delay: 520, progress: 38, text: "Menghubungkan ke Santara..." },
+      { delay: 980, progress: 61, text: "Menyinkronkan data stok..." },
+      { delay: 1450, progress: 82, text: "Menyiapkan halaman closing..." }
+    ];
+
+    let startedAt = performance.now();
+    let frameLoaded = false;
+
+    document.addEventListener("DOMContentLoaded", initializeApp);
+    window.addEventListener("online", updateConnectionState);
+    window.addEventListener("offline", updateConnectionState);
 
     function initializeApp() {
+      startedAt = performance.now();
+      updateConnectionState();
       registerServiceWorker();
-      openApp();
-    }
+      runLoadingSequence();
 
-    function openApp() {
-      loadingScreen.style.display = 'flex';
-      errorScreen.style.display = 'none';
-      appFrame.style.visibility = 'hidden';
-
-      if (errorTimer) {
-        clearTimeout(errorTimer);
-      }
-
-      errorTimer = setTimeout(function () {
-        if (appFrame.style.visibility !== 'visible') {
-          loadingScreen.style.display = 'none';
-          errorScreen.style.display = 'flex';
-        }
-      }, 12000);
-
-      appFrame.onload = function () {
-        if (errorTimer) {
-          clearTimeout(errorTimer);
-        }
-        loadingScreen.style.display = 'none';
-        errorScreen.style.display = 'none';
-        appFrame.style.visibility = 'visible';
-      };
-
+      appFrame.addEventListener("load", handleFrameLoaded, { once: true });
       appFrame.src = APPS_SCRIPT_URL;
     }
 
-    function reloadApp() {
-      openApp();
+    function runLoadingSequence() {
+      loadingSteps.forEach(function (step) {
+        window.setTimeout(function () {
+          if (!frameLoaded) {
+            setProgress(step.progress, step.text);
+          }
+        }, step.delay);
+      });
+    }
+
+    function setProgress(value, text) {
+      const safeValue = Math.max(0, Math.min(100, value));
+      progressBar.style.width = safeValue + "%";
+      loadingPercent.textContent = safeValue + "%";
+      if (text) loadingText.textContent = text;
+    }
+
+    function handleFrameLoaded() {
+      frameLoaded = true;
+      setProgress(100, "Santara siap digunakan");
+
+      const elapsed = performance.now() - startedAt;
+      const waitTime = Math.max(260, MIN_SPLASH_TIME - elapsed);
+
+      window.setTimeout(function () {
+        appFrame.classList.add("ready");
+        splash.classList.add("hide");
+      }, waitTime);
+    }
+
+    function updateConnectionState() {
+      offlineNotice.style.display = navigator.onLine ? "none" : "block";
     }
 
     function registerServiceWorker() {
-      if (!('serviceWorker' in navigator)) {
-        return;
-      }
+      if (!("serviceWorker" in navigator)) return;
 
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js').catch(function (error) {
-          console.error('Service worker gagal didaftarkan:', error);
-        });
+      window.addEventListener("load", function () {
+        navigator.serviceWorker
+          .register("./sw.js")
+          .catch(function (error) {
+            console.error("Service worker gagal didaftarkan:", error);
+          });
       });
     }
   </script>
