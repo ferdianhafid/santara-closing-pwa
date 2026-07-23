@@ -384,7 +384,8 @@
 
   <script>
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzJcpAE7I8YT5Z3-afH7es-ecfEYaMY1AQ1UycKBC9Y8fPOCnpWdlAcIv_zb8lVMqtuQA/exec';
-    const MIN_SPLASH_TIME = 1900;
+    const MIN_SPLASH_TIME = 850;
+    const READY_TIMEOUT = 20000;
 
     const splash = document.getElementById("splash");
     const appFrame = document.getElementById("appFrame");
@@ -402,10 +403,13 @@
 
     let startedAt = performance.now();
     let frameLoaded = false;
+    let appReady = false;
+    let readyTimeoutId = null;
 
     document.addEventListener("DOMContentLoaded", initializeApp);
     window.addEventListener("online", updateConnectionState);
     window.addEventListener("offline", updateConnectionState);
+    window.addEventListener("message", handleAppMessage);
 
     function initializeApp() {
       startedAt = performance.now();
@@ -414,6 +418,7 @@
       runLoadingSequence();
 
       appFrame.addEventListener("load", handleFrameLoaded, { once: true });
+      readyTimeoutId = window.setTimeout(revealApp, READY_TIMEOUT);
       appFrame.src = APPS_SCRIPT_URL;
     }
 
@@ -436,10 +441,28 @@
 
     function handleFrameLoaded() {
       frameLoaded = true;
-      setProgress(100, "Santara siap digunakan");
+      setProgress(88, "Menyinkronkan data Santara...");
+    }
 
+    function handleAppMessage(event) {
+      const data = event && event.data;
+      if (!data || data.type !== "SANTARA_APP_READY") {
+        return;
+      }
+
+      appReady = true;
+      revealApp();
+    }
+
+    function revealApp() {
+      if (readyTimeoutId) {
+        window.clearTimeout(readyTimeoutId);
+        readyTimeoutId = null;
+      }
+
+      setProgress(100, appReady ? "Santara siap digunakan" : "Membuka Santara...");
       const elapsed = performance.now() - startedAt;
-      const waitTime = Math.max(260, MIN_SPLASH_TIME - elapsed);
+      const waitTime = Math.max(160, MIN_SPLASH_TIME - elapsed);
 
       window.setTimeout(function () {
         appFrame.classList.add("ready");
